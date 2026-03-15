@@ -21,9 +21,9 @@ export OUT_DIR=${ANDROID_BUILD_TOP}/out/msm-${CHIPSET_NAME}-${CHIPSET_NAME}-${TA
 
 export IS_KBUILD=true
 
-# Thin LTO 
+#3 Thin LTO 
 export LTO=thin
 
-#3. build kernel
+#4. build kernel
 cd ./kernel_platform/
 RECOMPILE_KERNEL=1 ./build/android/prepare_vendor.sh ${CHIPSET_NAME} ${TARGET_PRODUCT} gki | tee -a ../build.log
