@@ -22,7 +22,7 @@
 
 #ifdef CONFIG_PLD_IPCI_ICNSS
 #ifdef CONFIG_CNSS_OUT_OF_TREE
-#include <soc/qcom/icnss2.h>
+#include "icnss2.h"
 #else
 #include <soc/qcom/icnss2.h>
 #endif

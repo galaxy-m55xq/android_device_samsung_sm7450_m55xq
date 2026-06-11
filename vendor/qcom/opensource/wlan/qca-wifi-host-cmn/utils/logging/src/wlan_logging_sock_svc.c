@@ -46,9 +46,11 @@
 
 #ifdef CNSS_GENL
 #ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss_nl.h"
+#else
 #include <net/cnss_nl.h>
-#endif /* CONFIG_CNSS_OUT_OF_TREE */
-#endif /* CNSS_GENL */
+#endif
+#endif
 
 #if defined(FEATURE_FW_LOG_PARSING) || defined(FEATURE_WLAN_DIAG_SUPPORT) || \
 	defined(CONNECTIVITY_PKTLOG)
