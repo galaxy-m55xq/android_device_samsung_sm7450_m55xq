@@ -266,10 +266,8 @@ qdf_export_symbol(nl_srv_is_initialized);
 #include <wlan_nlink_common.h>
 #include <net/genetlink.h>
 #ifdef CONFIG_CNSS_OUT_OF_TREE
-#include "cnss_nl.h"
-#else
 #include <net/cnss_nl.h>
-#endif
+#endif /* CONFIG_CNSS_OUT_OF_TREE */
 
 void cld80211_oem_send_reply(struct sk_buff *msg, void *hdr,
 				    struct nlattr *nest, int flags)

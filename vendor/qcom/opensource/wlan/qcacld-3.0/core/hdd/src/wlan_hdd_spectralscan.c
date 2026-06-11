@@ -37,11 +37,9 @@
 #include "wlan_hdd_object_manager.h"
 #ifdef CNSS_GENL
 #ifdef CONFIG_CNSS_OUT_OF_TREE
-#include "cnss_nl.h"
-#else
 #include <net/cnss_nl.h>
-#endif
-#endif
+#endif /* CONFIG_CNSS_OUT_OF_TREE */
+#endif /* CNSS_GENL */
 
 /**
  * __wlan_hdd_cfg80211_spectral_scan_start() - start spectral scan

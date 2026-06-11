@@ -40,13 +40,13 @@
 #ifdef CONFIG_CNSS_OUT_OF_TREE
 #ifdef CONFIG_PLD_SNOC_ICNSS
 #ifdef CONFIG_PLD_SNOC_ICNSS2
-#include "icnss2.h"
+#include <soc/qcom/icnss2.h>
 #else
 #include "icnss.h"
 #endif
 #endif
 #ifdef CONFIG_PLD_IPCI_ICNSS
-#include "icnss2.h"
+#include <soc/qcom/icnss2.h>
 #endif
 #else
 #ifdef CONFIG_PLD_SNOC_ICNSS

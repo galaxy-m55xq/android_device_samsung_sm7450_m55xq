@@ -167,11 +167,9 @@
 
 #ifdef CNSS_GENL
 #ifdef CONFIG_CNSS_OUT_OF_TREE
-#include "cnss_nl.h"
-#else
 #include <net/cnss_nl.h>
-#endif
-#endif
+#endif /* CONFIG_GENL */
+#endif /* CONFIG_CNSS_OUT_OF_TREE */
 #include "wlan_reg_ucfg_api.h"
 #include "wlan_ocb_ucfg_api.h"
 #include <wlan_hdd_spectralscan.h>

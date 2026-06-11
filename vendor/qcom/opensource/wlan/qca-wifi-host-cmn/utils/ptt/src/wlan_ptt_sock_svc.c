@@ -33,10 +33,9 @@
 
 #ifdef CNSS_GENL
 #ifdef CONFIG_CNSS_OUT_OF_TREE
-#include "cnss_nl.h"
-#else
 #include <net/cnss_nl.h>
-#endif
+#endif /* CONFIG_CNSS_OUT_OF_TREE */
+#endif /* CNSS_GENL */
 #include <wlan_cfg80211.h>
 #endif
 
@@ -257,4 +256,3 @@ void ptt_sock_deactivate_svc(void)
 	deregister_cld_cmd_cb(ANI_NL_MSG_PUMAC);
 }
 #endif
-#endif /* PTT_SOCK_SVC_ENABLE */

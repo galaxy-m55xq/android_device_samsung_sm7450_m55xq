@@ -27,10 +27,7 @@
 
 #ifdef CNSS_UTILS
 #ifdef CONFIG_CNSS_OUT_OF_TREE
-#include "cnss_utils.h"
-#else
 #include <net/cnss_utils.h>
-#endif
 #endif
 
 #define PLD_IMAGE_FILE               "athwlan.bin"
@@ -46,10 +43,7 @@
 
 #ifdef CNSS_MEM_PRE_ALLOC
 #ifdef CONFIG_CNSS_OUT_OF_TREE
-#include "cnss_prealloc.h"
-#else
 #include <net/cnss_prealloc.h>
-#endif
 #endif
 
 #define PLD_LIMIT_LOG_FOR_SEC 6
@@ -1286,3 +1280,6 @@ static inline int pfrm_write_config_dword(struct pci_dev *pdev, int offset,
 }
 
 #endif
+
+#endif /* CNSS_UTILS */
+#endif /* __PLD_COMMON_H__ */
