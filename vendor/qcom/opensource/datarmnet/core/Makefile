@@ -22,8 +22,8 @@ rmnet_core-y += 	rmnet_config.o \
 			rmnet_vnd.o \
 			dfc_qmap.c \
 			dfc_qmi.c \
-			qmi_rmnet.0 \
-			wda_qmi.0 \
+			qmi_rmnet.o \
+			wda_qmi.o \
 			rmnet_ll.o \
 			rmnet_ll_ipa.o \
 			rmnet_qmap.o \
