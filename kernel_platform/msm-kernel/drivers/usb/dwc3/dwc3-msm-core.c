@@ -4730,6 +4730,20 @@ static ssize_t mode_store(struct device *dev, struct device_attribute *attr,
 	else if (sysfs_streq(buf, "host"))
 		role = USB_ROLE_HOST;
 
+#if IS_ENABLED(CONFIG_USB_NOTIFY_LAYER)
+	if (role == USB_ROLE_DEVICE) {
+		if (is_blocked(get_otg_notify(), NOTIFY_BLOCK_TYPE_CLIENT)) {
+			dev_err(dev, "blocked peripheral mode\n");
+			return -EINVAL;
+		}
+	} else if (role == USB_ROLE_HOST) {
+		if (is_blocked(get_otg_notify(), NOTIFY_BLOCK_TYPE_HOST)) {
+			dev_err(dev, "blocked host mode\n");
+			return -EINVAL;
+		}
+	}
+#endif
+
 	dbg_log_string("mode_request:%s\n", usb_role_string(role));
 	ret = dwc3_msm_set_role(mdwc, role);
 	if (ret < 0)
