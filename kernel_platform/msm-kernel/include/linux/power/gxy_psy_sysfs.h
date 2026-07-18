@@ -208,6 +208,9 @@ enum {
     /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 start*/
     PD_MAX_POWER,
     /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 end*/
+    /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+    IS_CHARGER_PD,
+    /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
     GXY_USB_PROP_MAX,
 };
 /*M55 code for QN6887A-66 by shixuanxuan at 20230917 start*/
@@ -248,6 +251,9 @@ typedef enum {
   /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 start*/
   GXY_PD_MAX_POWER_EVENT,
   /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 end*/
+  /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+  GXY_IS_CHARGER_PD_EVENT,
+  /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
   GXY_MAX_EVENT_TYPE
 }gxy_notify_event_type;
 
@@ -267,6 +273,9 @@ struct gxy_usb {
     /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 start*/
     u8 pd_maxpower_status;
     /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 end*/
+    /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+    u8 is_charger_pd;
+    /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
 };
 
 /*M55 code for SR-QN6887A-01-525 by liufurong at 20230816 start*/

@@ -18,6 +18,31 @@
 struct gxy_battery_ttf *gxy_battery = NULL;
 EXPORT_SYMBOL(gxy_battery);
 
+/*M55_BOS code for QN6887D-1918 by xiongxiaoliang at 20260210 start*/
+static bool gxy_get_boot_mode(void)
+{
+    struct device_node *np_chosen_t = NULL;
+    const char *touchload = NULL;
+
+    np_chosen_t = of_find_node_by_path("/chosen");
+    if (!np_chosen_t) {
+        np_chosen_t = of_find_node_by_path("/chosen@0");
+    }
+
+    if (np_chosen_t) {
+        of_property_read_string(np_chosen_t, "bootargs", &touchload);
+        if (!touchload) {
+            GXY_PSY_ERR("%s: it is not normal boot!", __func__);
+        } else if (strnstr(touchload, "touch.load=1", strlen(touchload))) {
+            GXY_PSY_ERR("%s: it is normal boot!", __func__);
+            return true;
+        }
+    }
+
+    return false;
+}
+/*M55_BOS code for QN6887D-1918 by xiongxiaoliang at 20260210 end*/
+
 static bool check_ttf_state(unsigned int capacity, int bat_sts)
 {
     return ((bat_sts == POWER_SUPPLY_STATUS_CHARGING) ||
@@ -447,6 +472,11 @@ int gxy_ttf_init(void)
         GXY_PSY_ERR("%s: Fail to Create Workqueue\n", __func__);
         goto ttf_init_fail;
     }
+
+    /*M55_BOS code for QN6887D-1918 by xiongxiaoliang at 20260210 start*/
+    gxy_battery->gxy_bootmode = gxy_get_boot_mode();
+    GXY_PSY_ERR("gxy_bootmode:%d\n", gxy_battery->gxy_bootmode);
+    /*M55_BOS code for QN6887D-1918 by xiongxiaoliang at 20260210 end*/
 
     INIT_DELAYED_WORK(&gxy_battery->ttf_d->timetofull_work, gxy_bat_time_to_full_work);
     return 0;

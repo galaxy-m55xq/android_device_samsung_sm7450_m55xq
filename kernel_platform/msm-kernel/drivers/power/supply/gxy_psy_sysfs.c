@@ -102,6 +102,9 @@ static struct device_attribute gxy_usb_attrs[] = {
     /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 start*/
     GXY_USB_ATTR(pd_max_power),
     /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 end*/
+    /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+    GXY_USB_ATTR(is_charger_pd),
+    /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
 };
 
 /*M55 code for P240202-03197 by xiongxiaoliang at 20240204 start*/
@@ -250,16 +253,18 @@ static gxy_online_state_t gxy_get_online_state(void)
     gxy_online_state_t ret = OFFLINE;
     struct power_supply *usb_psy = NULL;
     union power_supply_propval val;
-    union power_supply_propval val_vol;
+    /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+    bool is_charger_pd = false;
+    /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
+
     usb_psy = power_supply_get_by_name("usb");
     if (IS_ERR_OR_NULL(usb_psy)) {
         GXY_PSY_ERR("%s: get usb psy failed\n", __func__);
         return -EPROBE_DEFER;
     }
     power_supply_get_property(usb_psy, POWER_SUPPLY_PROP_USB_TYPE, &val);
-    power_supply_get_property(usb_psy, POWER_SUPPLY_PROP_VOLTAGE_NOW, &val_vol);
     /*M55 code for SR-QN6887A-01-516 by xiongxiaoliang at 20230904 start*/
-    GXY_PSY_DEBUG("%s: get usb type val = %d, voltage now = %d\n", __func__, val.intval, val_vol.intval);
+    GXY_PSY_DEBUG("%s: get usb type val = %d\n", __func__, val.intval);
     /*M55 code for SR-QN6887A-01-516 by xiongxiaoliang at 20230904 end*/
     switch (val.intval) {
         case POWER_SUPPLY_USB_TYPE_DCP:
@@ -275,13 +280,17 @@ static gxy_online_state_t gxy_get_online_state(void)
             ret = ONLINE_USB;
             break;
         case POWER_SUPPLY_USB_TYPE_PD:
+            /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
             /*M55 code for SR-QN6887A-01-707 by wenyaqi at 20230921 start*/
-            if (val_vol.intval <= 6500000) {
-                ret = ONLINE_USB;
-            } else {
+            is_charger_pd = gxy_usb_get_prop(IS_CHARGER_PD);
+            if (is_charger_pd == true) {
                 ret = ONLINE_AC;
+            } else {
+                ret = ONLINE_USB;
             }
+            GXY_PSY_DEBUG("%s: is_charger_pd = %d\n", __func__, is_charger_pd);
             /*M55 code for SR-QN6887A-01-707 by wenyaqi at 20230921 end*/
+            /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
             break;
         case POWER_SUPPLY_USB_TYPE_UNKNOWN:
             ret = OFFLINE;
@@ -700,6 +709,7 @@ ssize_t gxy_bat_store_attrs(struct device *dev, struct device_attribute *attr,
         /*M55 code for P231122-06914|QN6887A-4129 by lina at 20231124 start*/
         case BATT_FULL_CAPACITY:
             /*M55_V code for P250113-05436 by xiongxiaoliang at 20250121 start*/
+            /*M55_BOS code for QN6887D-1918 by xiongxiaoliang at 20260210 start*/
             if (!strncmp(buf, g_basic_protection,(count-1))) {
                 num = 100;
                 gxy_battery->batt_full_capacity = 100;
@@ -715,11 +725,19 @@ ssize_t gxy_bat_store_attrs(struct device *dev, struct device_attribute *attr,
             } else if (!strncmp(buf, g_highsoc_protection,(count-1))) {
                 num = HIGHSOC_PROTECTION_FLAG;
                 gxy_battery->batt_full_capacity = 80;
+            } else if (gxy_battery->gxy_bootmode == false) {
+                num = MAX_PROTECTION_FLAG;
+                gxy_max_soc = atoi(buf);
+                if (gxy_max_soc > 0 && gxy_max_soc <= 100) {
+                    gxy_battery->batt_full_capacity = gxy_max_soc;
+                }
             } else {
                 GXY_PSY_ERR("%s: Setting Value incorrect, cancel battery protection, %s %d\n",__func__, buf, num);
             }
 
-            GXY_PSY_ERR("%s:set battery protection, type = %s value = %d, batt_full_capacity = %d\n", __func__, buf, num, gxy_battery->batt_full_capacity);
+            GXY_PSY_ERR("%s:set battery protection, type = %s value = %d, batt_full_capacity = %d, gxy_bootmode = %d\n", __func__,
+                buf, num, gxy_battery->batt_full_capacity, gxy_battery->gxy_bootmode);
+            /*M55_BOS code for QN6887D-1918 by xiongxiaoliang at 20260210 end*/
             num = (num << 8) | gxy_battery->batt_full_capacity;
             /*M55_V code for P250113-05436 by xiongxiaoliang at 20250121 end*/
             ret = gxy_battery_set_prop(offset, num);
@@ -849,6 +867,12 @@ ssize_t gxy_usb_show_attrs(struct device *dev, struct device_attribute *attr, ch
             count = sprintf(buf, "%d\n", value);
             break;
         /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 end*/
+        /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+        case IS_CHARGER_PD:
+            value = gxy_usb_get_prop(offset);
+            count = sprintf(buf, "%d\n", value);
+            break;
+        /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
         default:
             count = -EINVAL;
             break;

@@ -39,6 +39,7 @@
 #include "proca_config.h"
 #include "proca_porting.h"
 #include "proca_storage.h"
+#include "proca_tint_dev.h"
 #include "gaf/proca_gaf.h"
 
 #define PROCA_DEV_NAME "proca_config"
@@ -166,6 +167,17 @@ static bool is_bprm(struct task_struct *task, struct file *old_file,
 	return res;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
+static struct file *get_real_file(struct file *file)
+{
+	if (locks_inode(file)->i_sb->s_magic == OVERLAYFS_SUPER_MAGIC &&
+					file->private_data)
+		file = (struct file *)file->private_data;
+
+	return file;
+}
+#endif
+
 static void proca_hook_file_processed(struct task_struct *task,
 				enum task_integrity_value tint_value,
 				struct file *file, void *cert,
@@ -173,8 +185,11 @@ static void proca_hook_file_processed(struct task_struct *task,
 {
 	struct proca_task_descr *target_task_descr = NULL;
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
+	file = get_real_file(file);
 	if (!file)
 		return;
+#endif
 
 	if (task->flags & PF_KTHREAD)
 		return;
@@ -216,6 +231,12 @@ static void proca_hook_file_skipped(struct task_struct *task,
 {
 	if (!task || !file)
 		return;
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
+	file = get_real_file(file);
+	if (!file)
+		return;
+#endif
 
 	if (proca_is_certificate_present(file)) {
 
@@ -435,6 +456,12 @@ static __init int proca_module_init(void)
 	five_add_hooks(five_ops, ARRAY_SIZE(five_ops));
 
 	proca_task_descr_debugfs_init();
+
+#ifdef CONFIG_PROCA_GKI_20
+	ret = proca_tint_init_dev();
+	if (ret)
+		return ret;
+#endif
 
 	PROCA_INFO_LOG("LSM module was initialized\n");
 	g_proca_inited = 1;
