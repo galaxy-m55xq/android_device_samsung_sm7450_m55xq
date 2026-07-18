@@ -161,6 +161,9 @@ enum {
 enum {
 	USB_STATUS_UNPLUG,
 	USB_STATUS_CDP,
+	/*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+	USB_STATUS_PD,
+	/*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
 	USB_STATUS_OTHERS,
 };
 /*M55 code for SR-QN6887A-01-532 by gaoxugang at 20230925 end*/
@@ -986,6 +989,11 @@ static void battery_chg_update_usb_type_work(struct work_struct *work)
 		usb_psy_desc.type = POWER_SUPPLY_TYPE_USB_TYPE_C;
 		break;
 	case POWER_SUPPLY_USB_TYPE_PD:
+		/*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+		usb_status = USB_STATUS_PD;
+		usb_psy_desc.type = POWER_SUPPLY_TYPE_USB;
+		/*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
+		break;
 	case POWER_SUPPLY_USB_TYPE_PD_DRP:
 	case POWER_SUPPLY_USB_TYPE_PD_PPS:
 		usb_status = USB_STATUS_OTHERS;
@@ -1637,13 +1645,17 @@ static int battery_psy_get_prop(struct power_supply *psy,
 		break;
 	/*M55 code for SR-QN6887A-01-531 by gaoxugang at 20230925 start*/
 	case POWER_SUPPLY_PROP_ONLINE:
+		/*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
 		if (usb_status == USB_STATUS_CDP) {
 			pval->intval = POWER_SUPPLY_TYPE_USB_CDP;
 		} else if (usb_status == USB_STATUS_UNPLUG) {
 			pval->intval = POWER_SUPPLY_TYPE_BATTERY;
 		} else if (usb_status == USB_STATUS_OTHERS) {
 			pval->intval = usb_psy_desc.type;
+		} else if (usb_status == USB_STATUS_PD) {
+			pval->intval = POWER_SUPPLY_TYPE_USB_PD;
 		}
+		/*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
 		break;
 	/*M55 code for SR-QN6887A-01-531 by gaoxugang at 20230925 end*/
 	/*M55 code for SR-QN6887A-01-517 by liufurong at 20230921 start*/

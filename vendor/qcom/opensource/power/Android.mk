@@ -105,7 +105,9 @@ LOCAL_INIT_RC := android.hardware.power-service.rc
 LOCAL_MODULE_TAGS := optional
 LOCAL_CFLAGS += -Wno-unused-parameter -Wno-unused-variable
 LOCAL_VENDOR_MODULE := true
+ifeq ($(ODM_CUSTOM_BUILD),true)
 LOCAL_VINTF_FRAGMENTS := power.xml
+endif
 include $(BUILD_EXECUTABLE)
 endif
 

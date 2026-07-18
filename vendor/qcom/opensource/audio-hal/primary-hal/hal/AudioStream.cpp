@@ -1797,7 +1797,7 @@ int StreamOutPrimary::GetMmapPosition(struct audio_mmap_position *position)
     if (pal_stream_handle_ == nullptr) {
         AHAL_ERR("error pal handle is null\n");
         stream_mutex_.unlock();
-        return -EINVAL;
+        return -EAGAIN;
     }
 
     ret = pal_stream_get_mmap_position(pal_stream_handle_, &pal_mmap_pos);
@@ -3032,6 +3032,19 @@ int StreamOutPrimary::Open() {
                    sizeof(pal_param_payload) + sizeof(pal_snd_dec_t));
         } else {
             param_payload->payload_size = sizeof(pal_snd_dec_t);
+
+            if ((config_.offload_info.format & AUDIO_FORMAT_MAIN_MASK) == AUDIO_FORMAT_AAC ||
+               (config_.offload_info.format & AUDIO_FORMAT_MAIN_MASK) == AUDIO_FORMAT_AAC_ADTS ||
+               (config_.offload_info.format & AUDIO_FORMAT_MAIN_MASK) == AUDIO_FORMAT_AAC_ADIF ||
+               (config_.offload_info.format & AUDIO_FORMAT_MAIN_MASK) == AUDIO_FORMAT_AAC_LATM) {
+
+                isCompressMetadataAvail = true;
+                palSndDec.aac_dec.audio_obj_type = 29;
+                palSndDec.aac_dec.pce_bits_size = 0;
+                AHAL_VERBOSE("AAC params: aot %d pce %d", palSndDec.aac_dec.audio_obj_type, palSndDec.aac_dec.pce_bits_size);
+                AHAL_VERBOSE("format %x", config_.offload_info.format);
+            }
+
             memcpy(param_payload->payload, &palSndDec, param_payload->payload_size);
 
             ret = pal_stream_set_param(pal_stream_handle_,
@@ -3976,7 +3989,7 @@ int StreamInPrimary::GetMmapPosition(struct audio_mmap_position *position)
     if (pal_stream_handle_ == nullptr) {
         AHAL_ERR("error pal handle is null\n");
         stream_mutex_.unlock();
-        return -EINVAL;
+        return -EAGAIN;
     }
 
     ret = pal_stream_get_mmap_position(pal_stream_handle_, &pal_mmap_pos);

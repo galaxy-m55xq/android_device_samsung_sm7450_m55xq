@@ -217,6 +217,10 @@ int gxy_usb_get_prop(u32 prop_id)
             return g_gxy_usb.cc_orient;
         case PD_MAX_POWER:
             return g_gxy_usb.pd_maxpower_status;
+        /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+        case IS_CHARGER_PD:
+            return g_gxy_usb.is_charger_pd;
+        /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
         default:
             GXY_PSY_ERR("Unknown porp id: %u\n", prop_id);
             break;
@@ -359,6 +363,9 @@ static void gxy_glink_handle_notify(struct gxy_glink_dev *gxy_dev,
                 gxy_ttf_work_start();
             } else {
                 pd_event_flag = false;
+                /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+                g_gxy_usb.is_charger_pd = 0;
+                /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
                 gxy_ttf_work_cancel();
             }
             /*M55 code for P240110-02462|P240122-04615 by xiongxiaoliang at 20240223 end*/
@@ -422,6 +429,11 @@ static void gxy_glink_handle_notify(struct gxy_glink_dev *gxy_dev,
             g_gxy_usb.pd_maxpower_status = notify_msg->notify_value;
             break;
         /*M55 code for P231125-00024 by xiongxiaoliang at 20231211 end*/
+        /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 start*/
+        case GXY_IS_CHARGER_PD_EVENT:
+            g_gxy_usb.is_charger_pd = notify_msg->notify_value;
+            break;
+        /*M55_BOS code for P260130-09782 by xiongxiaoliang at 20260227 end*/
         default:
             break;
     }

@@ -66,6 +66,9 @@ struct gxy_battery_ttf {
     int bat_sts;       /*charging status */
     int batt_full_capacity;  /*battery protect */
     unsigned int battery_full_capacity; /*battery capacity */
+    /*M55_BOS code for QN6887D-1918 by xiongxiaoliang at 20260210 start*/
+    bool gxy_bootmode;
+    /*M55_BOS code for QN6887D-1918 by xiongxiaoliang at 20260210 end*/
     bool ttf_hv_disable;
     bool ttf_afc_result;
     bool ttf_time_update;

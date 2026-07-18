@@ -172,7 +172,6 @@ int AudioVoice::VoiceSetParameters(const char *kvpairs) {
     }
 
 #define AUDIO_PARAMETER_KEY_SAMSUNG_CALL_STATE "g_call_state"
-
     err = str_parms_get_int(parms, AUDIO_PARAMETER_KEY_SAMSUNG_CALL_STATE, &value);
     if (err >= 0) {
         str_parms_del(parms, AUDIO_PARAMETER_KEY_SAMSUNG_CALL_STATE);
@@ -289,6 +288,43 @@ int AudioVoice::VoiceSetParameters(const char *kvpairs) {
         }
 #endif
     }
+
+#ifdef SEC_AUDIO_CALL
+#define AUDIO_PARAMETER_KEY_SAMSUNG_VOICE_RX_CONTROL_MODE "l_voice_rx_control_mode"
+    err = str_parms_get_int(parms, AUDIO_PARAMETER_KEY_SAMSUNG_VOICE_RX_CONTROL_MODE, &value);
+    if (err >= 0) {
+        str_parms_del(parms, AUDIO_PARAMETER_KEY_SAMSUNG_VOICE_RX_CONTROL_MODE);
+
+        voice_session_t *session = NULL;
+        std::shared_ptr<AudioDevice> adevice =
+            AudioDevice::GetInstance();
+
+        for (int i = 0; i < max_voice_sessions_; i++) {
+            if (adevice->vsid == voice_.session[i].vsid) {
+                session = &voice_.session[i];
+                break;
+            }
+        }
+
+        if (session) {
+            if(session->device_mute.dir != PAL_AUDIO_OUTPUT) {
+                AHAL_ERR("invalid mute direction configuration");
+                session->device_mute.dir = PAL_AUDIO_OUTPUT;
+            }
+
+            bool mute = (value == 1 ? true : false);
+
+            if (session->device_mute.mute != mute) {
+                session->device_mute.mute = mute;
+
+                if (IsCallActive(session)) {
+                    ret = SetDeviceMute(session);
+                }
+            }
+        }
+    }
+#endif
+
 #ifdef SEC_AUDIO_CALL_VOIP
     err = str_parms_get_int(parms, AUDIO_PARAMETER_SEC_LOCAL_MIC_INPUT_CONTROL_MODE, &value);
     if (err >= 0) {
@@ -334,6 +370,7 @@ int AudioVoice::VoiceSetParameters(const char *kvpairs) {
     }
     /*M55 code for QN6887A-1679 by hujincan at 2023/12/06 end*/
 #endif
+
     err = str_parms_get_str(parms, AUDIO_PARAMETER_KEY_TTY_MODE, c_value, sizeof(c_value));
     if (err >= 0) {
         if (strcmp(c_value, AUDIO_PARAMETER_VALUE_TTY_OFF) == 0)
@@ -1191,6 +1228,11 @@ int AudioVoice::VoiceStop(voice_session_t *session) {
     /*M55 code for P240105-05058 by hujincan at 2023/01/16 start*/
     SetPAMute(false);
     /*M55 code for P240105-05058 by hujincan at 2023/01/16 end*/
+
+#ifdef SEC_AUDIO_CALL
+    session->device_mute.dir = PAL_AUDIO_OUTPUT;
+    session->device_mute.mute = false;
+#endif
 
     if (ret)
         ret = -EINVAL;
