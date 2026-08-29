@@ -75,6 +75,9 @@ export MKBOOTIMG_EXTRA_ARGS=" \
     --pagesize 4096 \
 "
 
+# Set a LOCALVERSION before compiling.
+export LOCALVERSION="-lineage-kernel-test"
+
 # Cook kernel
 env ${GKI_KERNEL_BUILD_OPTIONS} ${ANDROID_BUILD_TOP}/kernel_platform/build/android/prepare_vendor.sh sec ${TARGET_PRODUCT} | tee -a build.log
 
